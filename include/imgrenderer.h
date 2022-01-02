@@ -9,9 +9,9 @@
 #include <stdlib.h>
 
 /*
- * Please understand that this is not going to be an efficent method of generating an image file.
+ * This project is not designed to be an efficent method of generating an image file.
  * The image file generated is a .ppm format which is very decompressed and takes up significantly
- * more space than a .png for example.
+ * more space than a .png image format for example.
  * 
  */
 
@@ -41,6 +41,7 @@ typedef struct renderer
 } renderer;
 
 void createPPM(const char* path, const int width, const int height, const unsigned char* data);
+double numberMap(double n, double start1, double stop1, double start2, double stop2);
 uint64_t getIndex(const uint64_t x, const uint64_t y, const uint64_t imgW);
 void renderer_init(renderer* r, int imgW, int imgH);
 void renderer_destroy(renderer* r);

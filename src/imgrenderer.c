@@ -39,6 +39,11 @@ uint64_t getIndex(const uint64_t x, const uint64_t y, const uint64_t imgW)
 	return 3*(imgW*y + x);
 }
 
+double numberMap(double n, double start1, double stop1, double start2, double stop2)
+{
+	return (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+}
+
 void renderer_setColor(renderer* r, uint32_t color)
 {
 	const uint32_t mask = 0xFF;
@@ -83,26 +88,22 @@ void renderer_fillRect(renderer* r, int x, int y, int w, int h)
 	{
 		return;
 	}
-	
-	//min max functions are confusing at the moment, so I'll run a ternary statement instead
 
-	x = 0 > x ? 0 : x;
-	y = 0 > y ? 0 : y;
+	int left = 0 > x ? 0 : x;
+	int top = 0 > y ? 0 : y;
 
-	int edgeX = r->imgW-x-1;//as a consequence I'll have to define these to save processing time
-	int edgeY = r->imgH-y-1;
+	int visibleX = r->imgW-left-1;
+	int visibleY = r->imgH-top-1;
 
-	w = w < edgeX ? w : edgeX;
-	h = h < edgeY ? h : edgeY;
+	int clippedW = w < visibleX ? w : visibleX;
+	int clippedH = h < visibleY ? h : visibleY;
 
-	int x2 = x + w;
-	int y2 = y + h;
+	int right = left + clippedW;
+	int bottom = top + clippedH;
 
-	printf("(%d, %d, %d, %d)\n", x, y, x2, y2);
-
-	for (int j = y; j <= y2; j++)
+	for (int j = top; j <= bottom; j++)
 	{
-		for (int i = x; i <= x2; i++)
+		for (int i = left; i <= right; i++)
 		{
 			uint64_t index = getIndex(i, j, r->imgW);
 
@@ -113,7 +114,58 @@ void renderer_fillRect(renderer* r, int x, int y, int w, int h)
 	}
 }
 
-void renderer_fillOval(renderer* r, int x, int y, int w, int h);
+bool inCircle(double x, double y)
+{
+	if (x < 0 || x > 1 || y < 0 || y > 1)
+		return false;
+	else if (sqrt(((x - 0.5) * (x - 0.5)) + ((y - 0.5) * (y - 0.5))) > 0.5)
+		return false;
+	else
+		return true;
+}
+
+/**
+ * This function is going to map a circle in order to project into an oval
+ */
+
+void renderer_fillOval(renderer* r, const int x, const int y, const int w, const int h)
+{
+	if (x >= r->imgW || y >= r->imgH || w < 1 || h < 1)
+	{
+		return;
+	}
+
+	int left = 0 > x ? 0 : x;
+	int top = 0 > y ? 0 : y;
+
+	int visibleX = r->imgW-left-1;
+	int visibleY = r->imgH-top-1;
+
+	int clippedW = w < visibleX ? w : visibleX;
+	int clippedH = h < visibleY ? h : visibleY;
+
+	int right = left + clippedW;
+	int bottom = top + clippedH;
+
+	for (int j = top; j <= bottom; j++)
+	{
+		for (int i = left; i <= right; i++)
+		{
+			if (inCircle(
+				numberMap(i, (double)x, (double)x + (double)w, 0, 1),
+				numberMap(j, (double)y, (double)y + (double)h, 0, 1)
+			)) {
+				uint64_t index = getIndex(i, j, r->imgW);
+
+				r->buffer[index + 0] = r->red;
+				r->buffer[index + 1] = r->green;
+				r->buffer[index + 2] = r->blue;
+			}
+		}
+	}
+}
+
+
 void renderer_drawLine(renderer* r, int x0, int y0, int x1, int y1);
 void renderer_drawTriangle(renderer* r, int x0, int y0, int x1, int y1, int x2, int y2);
 
