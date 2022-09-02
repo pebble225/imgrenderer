@@ -55,6 +55,13 @@ void renderer_setColor(renderer* r, uint32_t color)
 	r->blue = color & mask;
 }
 
+void renderer_setIntColor(renderer* r, uint8_t red, uint8_t green, uint8_t blue)
+{
+	r->red = red;
+	r->green = green;
+	r->blue = blue;
+}
+
 void renderer_fillScreen(renderer* r)
 {
 	const int size = r->imgW*r->imgH;

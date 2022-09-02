@@ -47,6 +47,7 @@ void renderer_init(renderer* r, int imgW, int imgH);
 void renderer_destroy(renderer* r);
 bool isBoundPoint(renderer* r, int x, int y);//tests if point given is within image boundary
 void renderer_setColor(renderer* r, uint32_t color);//most significant byte(left-most) is unused
+void renderer_setIntColor(renderer* r, uint8_t red, uint8_t green, uint8_t blue);
 void renderer_fillScreen(renderer* r);
 void renderer_drawPixel(renderer* r, int x, int y);
 void renderer_fillRect(renderer* r, int x, int y, int w, int h);
